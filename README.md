@@ -69,26 +69,19 @@ I conducted a scientific evaluation to determine the optimal prompting strategy 
 Want to see it in action?
 
 ### 1. Clone the repo
-
-### 1. Clone the repo
 ```bash
 git clone https://github.com/YOUR_USERNAME/ReviewSense-AI.git
 cd ReviewSense-AI
 
-2. Install dependencies
-Bash
-
+# 2. Install dependencies
 pip install -r requirements.txt
-3. Set up your secrets
-Create a .env file in the root directory:
 
-Code snippet
-
+#3. Set up your secrets
+#Create a .env file in the root directory:
 GROQ_API_KEY=gsk_your_key_here
 MONGO_URI=mongodb+srv://your_mongo_url
-4. Launch!
-Bash
 
+# 4. Launch!
 uvicorn app.main:app --reload
 User View: Visit http://localhost:8000
 

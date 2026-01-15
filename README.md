@@ -97,6 +97,7 @@ Admin View: Visit http://localhost:8000/admin
 ```
 ---
 🔗 Live App: https://fynd-ai-intern-5moe.onrender.com
+
 🔗 Admin Dashboard: https://fynd-ai-intern-5moe.onrender.com/admin
 ---
 
@@ -112,4 +113,5 @@ Built with ☕ and 🐍 by Pratik.
 Contact
 Feel free to connect with me on LinkedIn to discuss this project or other data opportunities:
 
-[https://www.linkedin.com/in/pratik-kishor/]
+[Linkedin](https://www.linkedin.com/in/pratik-kishor/)
+

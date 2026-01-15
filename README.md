@@ -105,6 +105,7 @@ Admin View: Visit http://localhost:8000/admin
 Built with ☕ and 🐍 by Pratik.
 
 Contact
+---
 Feel free to connect with me on LinkedIn to discuss this project or other data opportunities:
 
 [Linkedin](https://www.linkedin.com/in/pratik-kishor/)

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fynd | Admin Dashboard</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Clamp long reviews to 3 lines -->
+     <style>
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            line-clamp: 3;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+        }
+     </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen p-8">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl font-semibold text-gray-900">
+                Customer Feedback
+            </h1>
+            <button onclick="loadReviews()"
+                class="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition">
+                Refresh
+            </button>
+        </div>
+
+        <!-- Sorting & Filtering Controls -->
+        <div class="flex flex-wrap gap-4 mb-6">
+            <select id="sortSelect"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                onchange="applyFilters()">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="rating_desc">Rating: High → Low</option>
+                <option value="rating_asc">Rating: Low → High</option>
+            </select>
+
+            <select id="ratingFilter"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                onchange="applyFilters()">
+                <option value="all">All Ratings</option>
+                <option value="5">5 ★</option>
+                <option value="4">4 ★</option>
+                <option value="3">3 ★</option>
+                <option value="2">2 ★</option>
+                <option value="1">1 ★</option>
+            </select>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white rounded-2xl shadow overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-100 text-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Rating</th>
+                        <th class="px-4 py-3 text-left">Submitted At</th>
+                        <th class="px-4 py-3 text-left">Review</th>
+                        <th class="px-4 py-3 text-left">AI Summary</th>
+                        <th class="px-4 py-3 text-left">Recommended Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reviews-table" class="divide-y"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let allReviews = [];
+
+        async function loadReviews() {
+            const res = await fetch('/api/reviews');
+            allReviews = await res.json();
+            applyFilters();
+        }
+
+        function applyFilters() {
+            let filtered = [...allReviews];
+
+            const ratingFilter = document.getElementById('ratingFilter').value;
+            const sortOption = document.getElementById('sortSelect').value;
+
+            // FILTER
+            if (ratingFilter !== "all") {
+                filtered = filtered.filter(
+                    item => item.user_rating == ratingFilter
+                );
+            }
+
+            // SORT
+            switch (sortOption) {
+                case "oldest":
+                    filtered.sort(
+                        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+                    );
+                    break;
+
+                case "rating_desc":
+                    filtered.sort((a, b) => b.user_rating - a.user_rating);
+                    break;
+
+                case "rating_asc":
+                    filtered.sort((a, b) => a.user_rating - b.user_rating);
+                    break;
+
+                default: // newest
+                    filtered.sort(
+                        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+                    );
+            }
+
+            renderTable(filtered);
+        }
+
+        function toggleReview(el) {
+        el.classList.toggle("line-clamp-3");
+
+        const toggleText = el.nextElementSibling;
+        if (toggleText) {
+            toggleText.innerText =
+                el.classList.contains("line-clamp-3")
+                    ? "Show more"
+                    : "Show less";
+        }
+      } 
+
+        function renderTable(data) {
+            const tbody = document.getElementById('reviews-table');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-4 py-6 text-center text-gray-500">
+                            No reviews found
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const row = `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium">${item.user_rating} ⭐</td>
+                    <td class="px-4 py-3">
+                        ${item.created_at
+                            ? new Date(item.created_at).toLocaleString()
+                            : "-"}
+                    </td>
+                   <td class="px-4 py-3 max-w-sm">
+                    <div>
+                        <p class="review-text line-clamp-3 cursor-pointer text-gray-800"
+                           onclick="toggleReview(this)">
+                            ${item.user_review}
+                        </p>
+                        <span class="text-xs text-blue-600 cursor-pointer"
+                              onclick="toggleReview(this.previousElementSibling)">
+                            Show more
+                        </span>
+                    </div>
+                   </td>
+
+                    <td class="px-4 py-3 max-w-xs">${item.ai_summary}</td>
+                    <td class="px-4 py-3 text-red-600 font-medium">
+                        ${Array.isArray(item.recommended_actions)
+                            ? item.recommended_actions.map(a => "• " + a).join("<br>")
+                            : item.recommended_actions}
+                    </td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        loadReviews();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fynd | Customer Feedback</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+
+    <div class="bg-white w-full max-w-xl p-8 rounded-2xl shadow-lg">
+        <h1 class="text-2xl font-semibold text-gray-900 mb-6">
+            Share your experience
+        </h1>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Rating
+            </label>
+            <select id="rating"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black">
+                <option value="5">5 – Excellent</option>
+                <option value="4">4 – Good</option>
+                <option value="3">3 – Average</option>
+                <option value="2">2 – Poor</option>
+                <option value="1">1 – Terrible</option>
+            </select>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Your Review
+            </label>
+            <textarea id="review" rows="4"
+                placeholder="Tell us about your experience..."
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+        </div>
+
+        <button onclick="submitReview()"
+            class="w-full bg-black text-white py-2 rounded-lg font-medium hover:bg-gray-800 transition">
+            Submit Feedback
+        </button>
+
+        <div id="response-area"
+            class="hidden mt-6 p-4 rounded-lg bg-gray-100 border border-gray-200">
+            <p class="text-sm text-gray-600 mb-1">AI Response</p>
+            <p id="ai-msg" class="text-gray-900"></p>
+        </div>
+    </div>
+
+    <script>
+        async function submitReview() {
+            const rating = document.getElementById('rating').value;
+            const review = document.getElementById('review').value;
+            const btn = document.querySelector('button');
+
+            btn.disabled = true;
+            btn.innerText = "Submitting...";
+
+            try {
+                const res = await fetch('/submit-review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        rating: parseInt(rating),
+                        review: review
+                    })
+                });
+
+                const data = await res.json();
+                document.getElementById('response-area').classList.remove('hidden');
+                document.getElementById('ai-msg').innerText = data.ai_response;
+            } catch {
+                alert("Submission failed");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Submit Feedback";
+            }
+        }
+    </script>
+
+</body>
+</html>
